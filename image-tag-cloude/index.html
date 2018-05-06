@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox='-10 -10 20 20' width='300px' height='500px'>
+        <div id="cloud"></div>
+<script src="d3.v3.min.js"></script>
+<script src="d3.layout.picturecloud.js"></script>
+<!-- <script src="http://davidbau.com/encode/seedrandom-min.js"></script> -->
+<script>
+//Math.seedrandom('abcde');  // define a fixed random seed, to avoid to have a different layout on each page reload. change the string to randomize
+var pictures = []; // pictures that are already displaced by the layout are pushed into this array
+var svg = d3.select('svg');
+/* var svg = d3.select('#cloud') // obtain a d3 reference to the SVG
+                .append("svg")
+                .attr("width", 300) 
+                .attr("height", 500)  */
+//var fill = d3.scale.category20();
+
+d3.layout.picturecloud().size([1,2])
+    .pictures([ // define weight and URL for each of the pictures that have to be displaced
+        {weight: 110, url: 'img/freepik/dog.svg'},
+        {weight: 90,  url: 'img/freepik/driller.svg'},
+        {weight: 70,  url: 'img/freepik/hammer.svg'},
+        {weight: 85,  url: 'img/freepik/pig.svg'},
+        {weight: 98,  url: 'img/freepik/science.svg'},
+        {weight: 150,  url: 'img/freepik/science.svg'},
+        {weight: 70,  url: 'img/freepik/toilet.svg'},
+        {weight: 64,  url: 'img/freepik/vest.svg'},
+        {weight: 93,  url: 'img/freepik/bath.svg'},
+        {weight: 105,  url: 'img/freepik/bath.svg'},
+    ])
+    .padding(0.1) // define the minimum distance between pictures
+    .on('picture', function(picture, extent) { // whenever a picture is displaced, call this callback
+        pictures.push(picture); // store the picture into the global array
+        draw(pictures, extent); // call the function that actually draws the picture (more on that below)
+    } )
+    .start(); // execute the layout
+    
+function draw(pictures, extent) {
+    svg.selectAll('.picture') // select all elements having the class 'picture'
+        .data(pictures) // bind those elements to the global array containing all the pictures that have already been displaced
+      .enter().append('image') // for each new picture found, create an SVG image element
+        .attr('class', 'picture') // assign the class 'picture' to it
+        .attr('xlink:href', function(d) { return d.url; }) // set the source URL for the image
+        //.attr('width', function(d) { return d.width; }) // set width and height (that have been computed by the layout)
+        .attr('height', function(d) { return d.height; })
+        .attr('transform', function(d) {
+            return /* 'rotate(15deg) ' +  */'translate(' + [d.x-d.width/2, d.y-d.height/2] + ')rotate(' +Math.random() * 15+ ')'; // center the image in d.x and d.y (also computed by the layout)
+        })
+        .attr('opacity','0') // fade in animation
+      .transition()
+        //.duration(600)
+        .attr('opacity','1')
+        /* .style("fill", function(d, i) {
+            return fill(i);
+        }) */
+
+    // update the SVG viewBox using extent data (provided by the layout)
+    svg.transition()
+        //.duration(600) // animate the update
+        .attr('viewBox', extent.left+' '+extent.top+' '+(extent.right-extent.left)+' '+(extent.bottom-extent.top));
+}
+</script>
