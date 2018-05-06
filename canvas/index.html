@@ -1,0 +1,194 @@
+<html>
+    <body style="background-color:aquamarine">
+        <canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
+        <script>
+            var c = document.getElementById("myCanvas");
+            var ctx = c.getContext("2d");
+
+            var img = new Image();
+            img.onload = function() {
+                var w = 100,h = 75;
+                ctx.drawImage(img, 0, 0,w,h);//drawImage(image, x, y, width, height)
+                var data = getPolygon(ctx,0,0,w,h).filled;
+                var emptyData = getPolygon(ctx,0,0,w,h).empty;
+                //copyAt(ctx,0,0,50,50, 110,0);
+                
+                applyColor(ctx,0,0,w,h, (data,i) => { //invert Color
+                    data[i+0] = 255 - data[i+0];
+                    data[i+1] = 255 - data[i+1];
+                    data[i+2] = 255 - data[i+2];
+                    data[i+3] = data[i+3];
+                });
+                //drawPolygon(ctx,110,0, data,w,h);
+                drawPolygonWithColor(ctx,110,0, emptyData,w,h, { R : 114});
+                //CopyPixelByPixel(ctx,0,0,w,h, 110,20);
+            }
+            img.src = 'img/freepik/dog.svg'; //SVG will automatically resize as per canvas size
+            //img.src = 'img/freepik/bulb_money_rupee.png';//png will be resized when height and width are given in draw image function
+
+
+            function getPolygon(ctx,pointX,pointY,w,h, skipColorData){
+                var imageData = ctx.getImageData(pointX, pointY, w, h);
+                var data = imageData.data;
+                var filled=[],empty =[];
+                for(var x=0;x<w;x++){
+                    for(var y=0;y<h;y++){
+                        var index = (x + y * imageData.width) * 4;
+
+                        var cx={"X":x,"Y":y}; 
+                        if(data[index+0] > 0 || data[index+1]> 0 || data[index+2]> 0 || data[index+3]> 0){
+                            if(!skipColorData){
+                                cx.R = data[index+0];
+                                cx.G = data[index+1];
+                                cx.B = data[index+2];
+                                cx.A = data[index+3];
+                            }
+                            filled.push(cx);
+                        }else{
+                            empty.push(cx);
+                        }
+                    }
+                }
+                return { filled : filled , empty : empty};
+            }
+
+            function changePixelColor(ctx,x,y,color){
+                var imageData = ctx.createImageData(1, 1);
+                imageData.data[0] = color.R;
+                imageData.data[1] = color.G;
+                imageData.data[2] = color.B;
+                imageData.data[3] = color.A;
+
+                ctx.putImageData(imageData,x,y);
+            }
+
+            function CopyPixelByPixel(ctx,startX,startY,w,h, newX, newY){
+                var imageData = ctx.getImageData(startX, startY, w, h);
+                var data = imageData.data;
+
+                for(var x=0;x<w;x++){
+                    for(var y=0;y<h;y++){
+                        var index = (x + y * imageData.width) * 4;
+
+                        if(data[index+0] > 0 || data[index+1]> 0 || data[index+2]> 0 || data[index+3]> 0){
+                            var color = {
+                                R : data[index+0],
+                                G : data[index+1],
+                                B : data[index+2],
+                                A : data[index+3]
+                            };
+                            changePixelColor(ctx, x + newX,y + newY,color);
+                        }
+                    }
+                }
+            }
+
+
+            /* function copyAt(ctx,x,y,w,h, newX, newY){
+                var oldImageData = ctx.getImageData(x, y, w, h);
+                var newImageData = ctx.createImageData(w, h);
+                var data = newImageData.data;
+
+                for(var i=0; i < w * h * 4 ; i++){
+                    newImageData.data[i] = oldImageData.data[i];
+                }
+                ctx.putImageData(newImageData,newX,newY);
+            } */
+
+            function copyAt(ctx,x,y,w,h, newX, newY){
+                var oldImageData = ctx.getImageData(x, y, w, h);
+                ctx.putImageData(oldImageData,newX,newY);
+            }
+
+            function changeColor(ctx,x,y,w,h,color){
+                var oldImageData = ctx.getImageData(x, y, w, h);
+                var len = w * h * 4;
+                for(var i=0; i < len ; i+=4){
+                    oldImageData.data[i+0] = color.R;
+                    oldImageData.data[i+1] = color.G;
+                    oldImageData.data[i+2] = color.B;
+                    oldImageData.data[i+3] = color.A;
+                }
+                ctx.putImageData(oldImageData,x,y);
+            }
+
+            function applyColor(ctx,x,y,w,h,fn){
+                var oldImageData = ctx.getImageData(x, y, w, h);
+                var data = oldImageData.data;
+                var len = w * h * 4;
+                for(var i=0; i < len ; i+=4){
+                    fn(data,i);
+                }
+                ctx.putImageData(oldImageData,x,y);
+            }
+
+            /*
+            draw polygon of w ,h at position x ,y
+            */
+            function drawPolygon(ctx,x,y, polygon,w,h){
+                if(!w){
+                    w = polygon.width;
+                }
+                if(!h){
+                    h = polygon.height;
+                }
+                var imageData = ctx.createImageData(w, h);
+
+                for(var point_i=0; point_i < polygon.length; point_i++){
+                    var point = polygon[point_i];
+                    var pixelPosition = ( point.X + point.Y * w ) * 4 ;
+
+                    imageData.data[pixelPosition+0] = polygon[point_i].R;
+                    imageData.data[pixelPosition+1] = polygon[point_i].G;
+                    imageData.data[pixelPosition+2] = polygon[point_i].B;
+                    imageData.data[pixelPosition+3] = polygon[point_i].A;
+                }
+                ctx.putImageData(imageData,x, y);
+            }
+
+            /*
+            draw polygon of w ,h at position x ,y
+            */
+            function drawPolygonWithColor(ctx,x,y, polygon,w,h,color){
+                if(!w){
+                    w = polygon.width;
+                }
+                if(!h){
+                    h = polygon.height;
+                }
+                var imageData = ctx.createImageData(w, h);
+
+                for(var point_i=0; point_i < polygon.length; point_i++){
+                    var point = polygon[point_i];
+                    var pixelPosition = ( point.X + point.Y * w ) * 4 ;
+
+                    imageData.data[pixelPosition+0] = color.R  || 0;
+                    imageData.data[pixelPosition+1] = color.G  || 0;
+                    imageData.data[pixelPosition+2] = color.B  || 0;
+                    imageData.data[pixelPosition+3] = color.A  || 255;
+                }
+                ctx.putImageData(imageData,x, y);
+            }
+            /** 
+            * Return the polygon of particular color
+            */
+            function getPolygonOf(ctx,startX,startY,w,h,colorToCheck){
+                var imageData = ctx.getImageData(startX, startY, w, h);
+                var data = imageData.data;
+                var filled=[];
+                for(var x=0;x<w;x++){
+                    for(var y=0;y<h;y++){
+                        var index = (x + y * imageData.width) * 4;
+
+                        if(data[index+0]==colorToCheck.R && data[index+1]==colorToCheck.G && data[index+2]==colorToCheck.B && data[index+3]==colorToCheck.A){
+                            var cx={"X":x,"Y":y}; //
+                            filled.push(cx);
+                        }
+                    }
+                }
+                return filled;
+            }
+
+        </script>
+    </body>
+</html>
