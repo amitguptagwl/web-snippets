@@ -1,0 +1,37 @@
+<html>
+    <body>
+            <canvas id=canvas width=500 height=500></canvas>
+        <script>
+            var ctx = canvas.getContext('2d'),
+            img = new Image();
+
+            img.onload = function(){
+                draw(ctx,img,100,75);
+            };
+            //img.src = "https://dl.dropboxusercontent.com/s/1alt1303g9zpemd/UFBxY.png";
+            img.src = "img/freepik/dog.svg";
+
+            function draw(ctx,img,w,h) {
+
+            var dArr = [-1,-1, 0,-1, 1,-1, -1,0, 1,0, -1,1, 0,1, 1,1], // offset array
+                s = 2,  // scale
+                i = 0,  // iterator
+                x = 5,  // final position
+                y = 5;
+            
+            // draw images at offsets from the array scaled by s
+            for(; i < dArr.length; i += 2)
+                ctx.drawImage(img, x + dArr[i]*s, y + dArr[i+1]*s,w,h);
+            
+            // fill with color
+            ctx.globalCompositeOperation = "source-in";
+            ctx.fillStyle = "red";
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
+            // draw original image in dest-out mode to keep only the outline
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.drawImage(img, x, y,w,h);
+            }
+        </script>
+    </body>
+</html>
