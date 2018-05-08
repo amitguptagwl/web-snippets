@@ -1,0 +1,93 @@
+<html>
+    <body style="background-color:aquamarine">
+        <canvas id="canvas" style="outline: 1px solid black;" width="500"  height="500"></canvas>
+
+        <script>
+            //var c = document.getElementById("myCanvas");
+            //var ctx = c.getContext("2d");
+            var ctx = canvas.getContext("2d");
+
+            var img = new Image();
+            img.onload = function() {
+                var w = 100,h = 75;
+                ctx.drawImage(img, 10, 10,w,h);//drawImage(image, x, y, width, height)
+                var poly1 = getPolygon(ctx,10,10,w,h);
+
+                var img2 = new Image();
+                img2.onload = function() {
+                    var w = 100,h = 75;
+                    ctx.drawImage(img2, 90, 10,w,h);
+                    var poly2 = getPolygon(ctx,90,10,w,h);
+
+                    console.log(areIntersecting( poly1, poly2) );
+                }
+                img2.src = 'img/freepik/driller.svg';
+
+                
+
+            }
+            img.src = 'img/freepik/dog.svg';
+
+            
+
+            function getPolygon(ctx,pointX,pointY,w,h){
+                var imageData = ctx.getImageData(pointX, pointY, w, h);
+                var data = imageData.data;
+                var position
+                var filled=[];
+                var i = 0;
+                for(var x=0;x<w;x++){
+                    for(var y=0;y<h;y++){
+                        var index = (x + y * w) * 4;
+                        var cx={"X":x,"Y":y}; 
+                        if(data[index+3]> 0){
+                            filled.push(cx);
+                        }
+                    }
+                }
+                return { points : filled , position : {
+                    x : pointX,
+                    y : pointY,
+                    width : w,
+                    height : h
+                }};
+            }
+
+            function areIntersecting(p1,p2){
+                //check if rectangle boundaries aare overlapping
+                if( rectOverlap (p1.position,p2.position) ){
+                    //check if their visible part is overlapping
+                    for(var i=0; i< p1.points.length; i++){
+                        if( containsPoint(p2,p1.points[i],p1.position) ) return true;
+                    }
+                    return false;
+                }else{
+                    return false;
+                }
+                
+            }
+
+        function containsPoint(polygon,point){
+            for(var i=0; i< polygon.points.length; i++){
+                if( (point.x === polygon.points[i].x) && (point.y === polygon.points[i].y) ){
+                    return true;
+                }
+            }
+        }
+
+        function valueInRange(value, min, max){
+             return (value >= min) && (value <= max); 
+        }
+
+        function rectOverlap(A, B){
+            var xOverlap = valueInRange(A.x, B.x, B.x + B.width) ||
+                            valueInRange(B.x, A.x, A.x + A.width);
+
+            var yOverlap = valueInRange(A.y, B.y, B.y + B.height) ||
+                            valueInRange(B.y, A.y, A.y + A.height);
+
+            return xOverlap && yOverlap;
+        }
+        </script>
+    </body>
+</html>
