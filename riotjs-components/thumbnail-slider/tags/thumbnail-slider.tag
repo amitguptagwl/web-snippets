@@ -6,7 +6,10 @@
             <div class="left-paddle col-md-1" onclick={ slideleft }></div>
             <div class="photolist-wrapper col-md-10" >
                 <div name="photolist" class="photolist" style="width: 3000px; min-height: 90px">
-                    <img src={ src } label ={ name } title={ name } width={this.thumbnailWidth} each={ this.thumbnails }>
+                        <div each={ this.thumbnails } class="imgbox clearfix">
+                            <div class="delete" onclick={ deleteThumbnail }></div>
+                            <img src={ src } label ={ name } title={ name } width={this.thumbnailWidth}>
+                        </div>
                 </div>
             </div>
             <div class="right-paddle col-md-1" onclick ={ slideright }></div>
@@ -64,5 +67,16 @@
                     });
                 }
             };
+
+            deleteThumbnail(e){
+            var thumbnail = $(e.target.nextElementSibling);
+            for(var thumbnail_i in this.thumbnails){
+                if(this.thumbnails[thumbnail_i].name === $(thumbnail[0]).attr("title")){
+                    this.thumbnails.splice(thumbnail_i,1);
+                    break;
+                }
+            }
+            this.update();
+        }
         </script>
 </thumbnail-slider>

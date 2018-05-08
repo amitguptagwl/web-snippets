@@ -1,4 +1,4 @@
-riot.tag2('thumbnail-slider', '<label class="btn-bs-file btn btn-outline-info">Browse Image files <input type="file" class="filebutton" accept="image/*" onchange="{readImageFiles}" multiple> </label> <div class="input-bar clearfix row"> <div class="left-paddle col-md-1" onclick="{slideleft}"></div> <div class="photolist-wrapper col-md-10"> <div name="photolist" class="photolist" style="width: 3000px; min-height: 90px"> <img riot-src="{src}" label="{name}" title="{name}" width="{this.thumbnailWidth}" each="{this.thumbnails}"> </div> </div> <div class="right-paddle col-md-1" onclick="{slideright}"></div> </div>', '', '', function(opts) {
+riot.tag2('thumbnail-slider', '<label class="btn-bs-file btn btn-outline-info">Browse Image files <input type="file" class="filebutton" accept="image/*" onchange="{readImageFiles}" multiple> </label> <div class="input-bar clearfix row"> <div class="left-paddle col-md-1" onclick="{slideleft}"></div> <div class="photolist-wrapper col-md-10"> <div name="photolist" class="photolist" style="width: 3000px; min-height: 90px"> <div each="{this.thumbnails}" class="imgbox clearfix"> <div class="delete" onclick="{deleteThumbnail}"></div> <img riot-src="{src}" label="{name}" title="{name}" width="{this.thumbnailWidth}"> </div> </div> </div> <div class="right-paddle col-md-1" onclick="{slideright}"></div> </div>', '', '', function(opts) {
             this.readImageFiles = function(e) {
                 var input = e.srcElement;
                 if (input.files && input.files[0]) {
@@ -51,4 +51,15 @@ riot.tag2('thumbnail-slider', '<label class="btn-bs-file btn btn-outline-info">B
                     });
                 }
             }.bind(this);
+
+            this.deleteThumbnail = function(e){
+            var thumbnail = $(e.target.nextElementSibling);
+            for(var thumbnail_i in this.thumbnails){
+                if(this.thumbnails[thumbnail_i].name === $(thumbnail[0]).attr("title")){
+                    this.thumbnails.splice(thumbnail_i,1);
+                    break;
+                }
+            }
+            this.update();
+        }.bind(this)
 });
