@@ -1,0 +1,75 @@
+<html>
+    <body  style="background-color:aquamarine">
+        <canvas id="canvas" style="outline: 1px solid black;" width="300"  height="500"></canvas>
+        <canvas id="canvas2" style="outline: 1px solid black;" width="300"  height="500"></canvas>
+        <!-- <canvas id=canvas width=500 height=500></canvas> -->
+        <script src="voronoli.js" type="text/javascript"></script>
+    <script>
+        
+        // Generating and plotting Voronoi diagram.
+        function randomNumbers() {
+            var cvs=document.getElementById("canvas");
+            var ctx=cvs.getContext("2d");
+            var w=cvs.width, h=cvs.height;
+            var x=y=d=dm=j=0, w1=w-2, h1=h-2;
+            var n=8;
+            // Building 3 arrays for requested n random sites (located on canvas)
+            // and linked to them random colors.
+            var X=new Array(n), Y=new Array(n);
+            for(var i=0; i<n; i++) {
+                X[i]=randgp(w1); Y[i]=randgp(h1);
+            }
+            
+            drawPoints(ctx,n,X,Y);
+            plotVoronoli(ctx,w,h,X,Y);
+        }
+
+
+        function distantRandomNumbers(minBlockSize, n) {
+            var cvs=document.getElementById("canvas2");
+            var ctx=cvs.getContext("2d");
+            var w=cvs.width, h=cvs.height;
+            var wc = Math.floor( w / minBlockSize.w );
+            var hc = Math.floor( h / minBlockSize.h );
+            if( n> (wc * hc) ) return;
+
+            var X = [];
+            var Y = [];
+            var blocksToskip = [];
+            //devide the rectangle in required blocks of minimum size
+            //if calculated blockas are more than required, skip extra blocks
+            for(var i=0; i< (wc * hc - n); i++){
+                var rand = randInRange(0,wc*hc) ;
+                if( blocksToskip.indexOf(rand) === -1)
+                    blocksToskip.push(rand);
+                else{
+                    i--;
+                }
+            }
+
+            var count = 0;
+            for(var i=0; i<wc; i++){
+                for(var j=0; j<hc; j++){
+                    if(blocksToskip.indexOf(count++) > -1) continue;
+                    var minX = minBlockSize.w * i +2;
+                    var minY = minBlockSize.h* j +2;
+                    var maxX = minBlockSize.w * (i+1) - 2;
+                    var maxY =minBlockSize.h * (j+1) -2 ;
+                    X.push(randInRange( minX, maxX ) );
+                    Y.push(randInRange(  minY, maxY) );
+                }
+            }
+
+            drawNumberPoints(ctx,n,X,Y);
+            plotVoronoli(ctx,w,h,X,Y);
+        }
+
+
+
+        randomNumbers();
+        distantRandomNumbers({w:75, h: 150},10);
+
+        
+    </script>
+    </body>
+</html>
