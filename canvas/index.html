@@ -59,6 +59,9 @@
                 return { filled : filled , empty : empty};
             }
 
+            /*
+            Based on transparent pixel
+            */
             function getOutline(ctx,pointX,pointY,w,h){
                 var imageData = ctx.getImageData(pointX, pointY, w, h);
                 var data = imageData.data;

@@ -6,7 +6,7 @@
         <canvas id="canvas4" style="outline: 1px solid black;" width="300"  height="500"></canvas>
         <canvas id="canvas5" style="outline: 1px solid black;" width="300"  height="500"></canvas>
         <!-- <canvas id=canvas width=500 height=500></canvas> -->
-        <script src="voronoli.js" type="text/javascript"></script>
+        <script src="voronoi.js" type="text/javascript"></script>
     <script>
         
         // Generating and plotting Voronoi diagram.
@@ -182,15 +182,19 @@
                 }
             }
 
-            plotVoronoli(ctx,w,h,X,Y);
+            var poly = plotVoronoli(ctx,w,h,X,Y);
+            //console.log(poly[0]);
             drawNumberPoints(ctx,n,X,Y);
+            var outline = concavePolygonOutline(poly[0]);
+            console.log(outline);
+            drawPolygon(ctx,outline);
         }
-
+        var minSize = {w:75, h: 75};
         randomNumbers();
-        distantRandomNumbers({w:75, h: 150},8);
-        fixXNumbers({w:75, h: 150},8);
-        fixYNumbers({w:75, h: 150},8);
-        fixXYNumbers({w:75, h: 150},8);
+        distantRandomNumbers(minSize,8);
+        fixXNumbers(minSize,8);
+        fixYNumbers(minSize,8);
+        fixXYNumbers(minSize,8);
     </script>
     </body>
 </html>
