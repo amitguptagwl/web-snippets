@@ -31,3 +31,7 @@
 ```
 
 **Note**: lines is an array of string
+
+## To Do
+1. Long pause before said words
+2. Auto long pause before difficult words
